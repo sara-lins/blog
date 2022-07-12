@@ -6,7 +6,6 @@ export default class Frame {
     static body = document.querySelector("body");
     static main = document.querySelector("main");
     static visibily = false;
-    static posts = [];
 
     static modalRegistration() {
         const modal = document.createElement("div");
@@ -94,51 +93,92 @@ export default class Frame {
         let data = "";
         let img = "";
         let name = "";
+        let id = "";
+        let idPost = "";
 
         for (const key in objectUser) {
             data = objectUser.createdAt.split("-").join("/");
             contentPost = objectUser["content"];
+            idPost = objectUser["id"];
             for (const data in objectUser.user) {
                 img = objectUser.user["avatarUrl"];
                 name = objectUser.user["username"];
+                id = objectUser.user["id"];
             }
         }
 
-        const day = data.slice(0,10).split("/").reverse().join("/");
+        let idLocalStorage = parseInt(window.localStorage.getItem("id-User"));
+        
+        if(id === idLocalStorage) {
 
-        const box = document.createElement("div");
-        const figure = document.createElement("figure");
-        const imgUser = document.createElement("img");
-        const divText = document.createElement("div");
-        const nameUser = document.createElement("h3");
-        const text = document.createElement("p");
-        const options = document.createElement("div");
-        const config = document.createElement("p");
-        const edit = document.createElement("p");
-        const remove = document.createElement("p");
-        const date = document.createElement("p");
+            const day = data.slice(0,10).split("/").reverse().join("/");
+    
+            const box = document.createElement("div");
+            const figure = document.createElement("figure");
+            const imgUser = document.createElement("img");
+            const divText = document.createElement("div");
+            const nameUser = document.createElement("h3");
+            const text = document.createElement("p");
+            const options = document.createElement("div");
+            const config = document.createElement("p");
+            const edit = document.createElement("p");
+            const remove = document.createElement("p");
+            const date = document.createElement("p");
+    
+            divText.className = "divText";
+            options.className = "options";
+            config.className = "config";
+            config.id = id;
+            edit.className = "edit";
+            edit.id = idPost;
+            remove.className = "remove";
+            remove.id = idPost;
+    
+            imgUser.src = img;
+            imgUser.alt = "Imagem usuário";
+            nameUser.innerText = name;
+            text.innerText = contentPost;
+            config.insertAdjacentHTML("afterbegin",`<i class="fa-solid fa-gear"></i>`);
+            edit.innerText = "Editar";
+            remove.innerText = "Excluir";
+            date.innerText = day;
+    
+            figure.appendChild(imgUser);
+            divText.append(nameUser, text);
+            options.append(config, edit, remove, date);
+            box.append(figure, divText, options);
 
-        divText.className = "divText";
-        options.className = "options";
-        config.className = "config";
-        edit.className = "edit";
-        remove.className = "remove";
+            return box;
 
-        imgUser.src = img;
-        imgUser.alt = "Imagem usuário";
-        nameUser.innerText = name;
-        text.innerText = contentPost;
-        config.insertAdjacentHTML("afterbegin",`<i class="fa-solid fa-gear"></i>`);
-        edit.innerText = "Editar";
-        remove.innerText = "Excluir";
-        date.innerText = day;
-
-        figure.appendChild(imgUser);
-        divText.append(nameUser, text);
-        options.append(config, edit, remove, date);
-        box.append(figure, divText, options);
-
-        return box;
+        } else {
+    
+            const day = data.slice(0,10).split("/").reverse().join("/");
+    
+            const box = document.createElement("div");
+            const figure = document.createElement("figure");
+            const imgUser = document.createElement("img");
+            const divText = document.createElement("div");
+            const nameUser = document.createElement("h3");
+            const text = document.createElement("p");
+            const options = document.createElement("div");
+            const date = document.createElement("p");
+    
+            divText.className = "divText";
+            options.className = "options";
+    
+            imgUser.src = img;
+            imgUser.alt = "Imagem usuário";
+            nameUser.innerText = name;
+            text.innerText = contentPost;
+            date.innerText = day;
+    
+            figure.appendChild(imgUser);
+            divText.append(nameUser, text);
+            options.append(date);
+            box.append(figure, divText, options);
+            
+            return box;
+        }
     }
 
     static async createPost() {
@@ -147,43 +187,74 @@ export default class Frame {
         const textPost = document.querySelector(".textarea");
 
         textPost.addEventListener("click", () => {
-            document.querySelector(".btn-post").style.display="flex";
+            button.style.display="flex";
         })
         
         button.addEventListener("click", async (e) => {
             e.preventDefault();
-            console.log(e.target)
             
             const text = textPost.value;
-            console.log(text)
-
-            document.querySelector(".btn-post").style.display="none";
+            button.style.display="none";
 
             if(text) {
                 const newPost = {
                     content: text
                 }
                 await Requisitions.createPostApi(newPost);
+                setTimeout(async () => {
+                    let cards = document.querySelector(".cards");
+                    cards.innerHTML = "";
+                    let arrayUsers = await Requisitions.searchPost(1);
+                    this.showPosts(arrayUsers.data);
+                },1000)
 
                 textPost.value = "";
-
-                this.main.addEventListener("click", (e) => {
-                    console.log(e.target)
-                    let editDisplay = document.querySelector(".edit");
-                    let removDisplay = document.querySelector(".remove");
-
-                    if(editDisplay.style.display === "none" && removDisplay.style.display === "none") {
-                        editDisplay.style.display="none";
-                        removDisplay.style.display="none";
-                    }
-                })
             }
         })
     }
 
-    static async showPosts(objectUser) {
-        this.main.children[1].appendChild(this.createCardPost(await objectUser));
+    static async showPosts(arrayObjectUsers) {
+        console.log(arrayObjectUsers)
+        await arrayObjectUsers.forEach((user) => {
+            this.main.children[1].appendChild(this.createCardPost(user));
+        })
 
+        window.addEventListener("click", (e) => {
+            const edit = document.querySelector(".edit");
+            const remove = document.querySelector(".remove");
+
+            if(e.target.className === "config" || e.target.className === "fa-solid fa-gear") {
+                if(edit.style.display === "none" && remove.style.display === "none") {
+                    edit.style.display="flex";
+                    remove.style.display="flex";
+
+                    edit.addEventListener("click", (e) => {
+                        console.log(e.target)
+                    })
+
+                    remove.addEventListener("click", async (e) => {
+                        console.log(e.target)
+                        const idPost = remove.id;
+                        console.log(idPost)
+                        await Requisitions.deletePost(idPost);
+                        setTimeout(async () => {
+                            let cards = document.querySelector(".cards");
+                            cards.innerHTML = "";
+                            let arrayUsers = await Requisitions.searchPost(1);
+                            this.showPosts(arrayUsers.data);
+                        },1000)
+                    })
+
+                } else {
+                    edit.style.display="none";
+                    remove.style.display="none";
+                }
+            }
+            if(e.target.className != "fa-solid fa-gear") {
+                edit.style.display="none";
+                remove.style.display="none";
+            }
+        })
     }
 
     static createRegistration() {
@@ -198,7 +269,6 @@ export default class Frame {
 
             if(username != "" && username.length <= 12) {
                 if(email != "") {
-                    //verificar se já existe esse email na api
                     if(avatarUrl != "") {
                         if(password != "") {
                             if(this.verifyPasswordRegistration(password) == true) {
@@ -208,8 +278,7 @@ export default class Frame {
                                     avatarUrl,
                                     password
                                 };
-                                const objectUser = await Requisitions.registrationApi(jsonUser)
-                                console.log(objectUser)
+                                const objectUser = await Requisitions.registrationApi(jsonUser);
                                 
                                 Frame.body.children[Frame.body.children.length-1].remove();
                                 document.querySelector("#modal-login").style.display="flex";
@@ -223,11 +292,7 @@ export default class Frame {
 
     static verifyPasswordRegistration(passwordUser) {
         if(passwordUser) {
-            //verificação:
-            //se os inputs tem valor
-            //se a senha possui letra maiuscula
-            //se a senha possui numero
-            //se a senha possui 11 digitos
+
             let letterOk = "";
             let numberOk = "";
             const letras = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z".split(",");

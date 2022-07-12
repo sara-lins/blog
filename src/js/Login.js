@@ -56,17 +56,14 @@ export default class Login {
                 e.preventDefault();
                 document.querySelector("header").style.display="none";
                 document.querySelector("main").style.display="none";
+                localStorage.removeItem("token-User");
+                localStorage.removeItem("id-User");
                 window.location.reload(true);
             })
     }
 
     static async verifyPassword(emailUser, passwordUser) {
         if(emailUser != "" && passwordUser != "") {
-            //verificação:
-            //se os inputs tem valor
-            //se a senha possui letra maiuscula
-            //se a senha possui numero
-            //se a senha possui 11 digitos
             let letterOk = "";
             let numberOk = "";
             const letras = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z".split(",");
@@ -77,19 +74,16 @@ export default class Login {
                 
             }
 
-            passwordUser.split("").forEach(letraPass => {
-
+            passwordUser.split("").forEach(letterPass => {
                 letras.forEach(letraAlfabeto => {
-                    const lettersTrue = letraPass.includes(letraAlfabeto)
-
+                    const lettersTrue = letterPass.includes(letraAlfabeto);
                     if(lettersTrue) {
                         letterOk = lettersTrue;
                     }
                 });
 
                 arrNumber.forEach(numberGlobal => {
-                    const numbersTrue = letraPass.includes(numberGlobal)
-
+                    const numbersTrue = letterPass.includes(numberGlobal);
                     if(numbersTrue) {
                         numberOk = numbersTrue;
                     }
@@ -111,23 +105,15 @@ export default class Login {
                         document.getElementById("modal-login").style.display="none";
                         document.querySelector("header").style.display="flex";
                         document.querySelector("main").style.display="flex";
-                        //depoisque o usuário loga, chama o método que recebe o input do textarea
-                        const promise = await Requisitions.searchPost(1)
-                        for (const key in promise) {
-                            if(key === "data") {
-                                promise[key].forEach(post => {
-                                    Frame.showPosts(post);
-                                })
-                            }
-                        }
-                        Requisitions.arrayPost = promise;
-                        Requisitions.searchUser();
+                        const promise = await Requisitions.searchPost(1);
+                        console.log(promise)
+                        Frame.showPosts(promise.data, promise.id);
                     }
                 }
+                    Requisitions.searchUser();
             } else {
                 console.log("não possui 6 digitos");
             }
-        
         } else {
             //mostrar mensagem de erro
         }

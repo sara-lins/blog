@@ -246,7 +246,7 @@ main>.cards>div {
     width: 37.563rem;
     height: 11.25rem;
     gap: 30px;
-    padding: 20px 25px;
+    padding: 20px 40px 20px 25px;
 
     background-color: #FFFFFF;
     border-radius: 5px;
@@ -299,6 +299,11 @@ main>.cards>div {
 }
 
 .config {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 40px;
+    height: 40px;
     padding: 5px;
     color:#EDBC64;
     font-size: 1rem;

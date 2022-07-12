@@ -4,10 +4,6 @@ import Frame from "./Frame.js";
 export default class Requisitions {
     static urlBase = "https://blog-m2.herokuapp.com/";
 
-    static arrayPost = "";
-    static arrayApi = {};
-
-
     static async registrationApi(data) {
         const url = this.urlBase + "users/register";
 
@@ -34,7 +30,7 @@ export default class Requisitions {
             body: JSON.stringify(data)
         })
         .then(res => res.json())
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
         
         return response;
     }
@@ -52,7 +48,7 @@ export default class Requisitions {
             },
         })
         .then(res => res.json())
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
 
         for (const key in response) {
             if(key == "avatarUrl") {
@@ -77,7 +73,7 @@ export default class Requisitions {
             },
         })
         .then(res => res.json())
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
 
         return response;
     }
@@ -94,25 +90,26 @@ export default class Requisitions {
             body: JSON.stringify(text)
         })
         .then(res => res.json())
-        .catch(err => console.log(err));
-
-        this.arrayApi = await Requisitions.searchPost(1)
-            for (const key in this.arrayApi) {
-                if(key === "data") {
-                    let result = "";
-                    this.arrayApi[key].forEach(post => {
-                        result = this.arrayPost.data.filter(elem => elem.id !== post.id)  
-                            
-                    })
-
-                    result.forEach(elem => {
-                        console.log(elem)
-                        Frame.showPosts(elem);
-                    })
-                    
-                }
-            }
+        .catch((err) => console.log(err));
 
         return response;
     }
+
+    static async deletePost(idPost) {
+        console.log(idPost)
+        const url = this.urlBase + "posts/" + idPost;
+        const token = JSON.parse(window.localStorage.getItem("token-User"));
+        console.log(token)
+
+        const response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
+        })
+        .catch((err) => console.log(err));
+
+        return response;
+    }
+
 }
