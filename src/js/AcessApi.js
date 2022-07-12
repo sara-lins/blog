@@ -112,4 +112,23 @@ export default class Requisitions {
         return response;
     }
 
+    static async editPost(idPost, text) {
+        
+        const url = this.urlBase + "posts/" + idPost;
+        const token = JSON.parse(window.localStorage.getItem("token-User"));
+        console.log(token)
+
+        const response = await fetch(url, {
+            method: "PATCH",
+            headers: {
+                "Content-Type" : "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(text)
+        })
+        .then(res => res.json())
+        .catch((err) => console.log(err));
+
+        return response;
+    }
 }

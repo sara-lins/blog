@@ -107,7 +107,9 @@ export default class Login {
                         document.querySelector("main").style.display="flex";
                         const promise = await Requisitions.searchPost(1);
                         console.log(promise)
-                        Frame.showPosts(promise.data, promise.id);
+                        Frame.showPosts(promise.data);
+                        Frame.showEvents();
+
                     }
                 }
                     Requisitions.searchUser();
